@@ -22,75 +22,22 @@ Claude (Agent SDK or CLI)
   - Auto-fix
 ```
 
-## Quick Start
+## Install
+
+```bash
+npm install devsonar
+```
+
+Or install the lightweight reporter only:
+
+```bash
+npm install @devsonar/error-reporter
+```
 
 ### Prerequisites
 
 - **Node.js** >= 18.0.0
-- **npm** >= 9.0.0
-- **Claude Code CLI** (`claude` command available)
-
-### Install & Run
-
-```bash
-npm install
-npm run build --workspace=packages/devsonar
-
-# Run your app with DevSonar auto-instrumentation
-npx devsonar run -- node your-app.js
-
-# Or run your app with tsx
-npx devsonar run -- tsx watch src/index.ts
-```
-
-DevSonar automatically starts a relay server and injects error monitoring into the child process via `node --import`.
-
-### Standalone Server
-
-```bash
-# Start the relay server only
-npx devsonar
-```
-
-Then integrate the reporter into your application manually (see below).
-
-## Packages
-
-### `devsonar`
-
-The main package. Includes the relay server, AI client, CLI, error buffer, and reporter.
-
-```
-packages/devsonar/
-├── bin/devsonar.js          # CLI entry point
-├── src/
-│   ├── cli.ts               # CLI: `devsonar run -- <command>`
-│   ├── register.ts          # Auto-registration via node --import
-│   ├── index.ts             # Public API (auto-initializes on import)
-│   ├── reporter/
-│   │   ├── types.ts          # ErrorReport, ErrorReporterConfig
-│   │   ├── reporter.ts       # ErrorReporter class + global helpers
-│   │   └── middleware.ts      # Express error middleware
-│   └── server/
-│       ├── types.ts           # RelayConfig, HealthResponse, InFlightEntry
-│       ├── server.ts          # Express relay server (POST /errors, GET /health, POST /flush)
-│       ├── buffer.ts          # Error buffering, deduplication, debounce
-│       ├── ai-client.ts       # Sends errors to Claude (SDK or CLI mode)
-│       └── session-manager.ts # Persists Claude session ID (~/.devsonar/session-id.txt)
-```
-
-### `@devsonar/error-reporter`
-
-Lightweight standalone client library for sending errors to the relay server. Same reporter API as `devsonar`, but with zero runtime dependencies.
-
-```
-packages/error-reporter/
-└── src/
-    ├── types.ts       # ErrorReport, ErrorReporterConfig
-    ├── reporter.ts    # ErrorReporter class + global helpers
-    ├── middleware.ts   # Express error middleware
-    └── index.ts       # Barrel export
-```
+- **Claude Code CLI** (`claude` command available) — required for the relay server
 
 ## Usage
 
@@ -99,10 +46,10 @@ packages/error-reporter/
 The simplest way. DevSonar wraps your Node.js process and captures all uncaught exceptions and unhandled rejections automatically.
 
 ```bash
-npx devsonar run -- tsx watch src/index.ts
+npx devsonar run -- node your-app.js
 ```
 
-This is how `apps/backend` uses DevSonar:
+Use it in your `package.json`:
 
 ```json
 {
@@ -112,27 +59,14 @@ This is how `apps/backend` uses DevSonar:
 }
 ```
 
-No code changes needed in your application.
+No code changes needed in your application. DevSonar starts a relay server and injects error monitoring into the child process via `node --import`.
 
 ### Option 2: Import `devsonar`
 
 Import the package to auto-initialize global error handlers.
 
 ```typescript
-// Just import — error monitoring starts automatically
 import 'devsonar';
-```
-
-This is how `apps/frontend` uses DevSonar:
-
-```typescript
-// src/services/errorReporter.ts
-import 'devsonar';
-```
-
-```typescript
-// src/App.tsx
-import './services/errorReporter';
 ```
 
 On import, `devsonar` calls `initErrorReporter()` which sets up:
@@ -143,7 +77,7 @@ On import, `devsonar` calls `initErrorReporter()` which sets up:
 
 For fine-grained control, use the standalone reporter package.
 
-#### Express.js Backend
+#### Express.js
 
 ```typescript
 import express from 'express';
@@ -160,7 +94,7 @@ const reporter = new ErrorReporter({
 app.use(errorReporterMiddleware(reporter));
 ```
 
-#### Browser / Frontend
+#### Browser
 
 ```typescript
 import { initErrorReporter } from '@devsonar/error-reporter';
@@ -189,11 +123,19 @@ try {
 }
 ```
 
+### Standalone Relay Server
+
+Start the relay server without wrapping an application:
+
+```bash
+npx devsonar
+```
+
 ## Configuration
 
 ### CLI Options
 
-```bash
+```
 devsonar run [options] -- <command>
 
 Options:
@@ -223,12 +165,14 @@ Options:
 | Property | Type | Default | Description |
 |---|---|---|---|
 | `relayUrl` | `string` | `http://localhost:9100` | Relay server URL |
-| `enabled` | `boolean` | `true` (dev only in `error-reporter`) | Enable/disable reporting |
+| `enabled` | `boolean` | `true` | Enable/disable reporting |
 | `timeout` | `number` | `1000` | Request timeout in ms |
 | `maxStackLength` | `number` | `2000` | Max stack trace characters |
 | `debug` | `boolean` | `false` | Log send failures to console |
 
 ## API Endpoints
+
+The relay server exposes the following endpoints:
 
 ### `POST /errors`
 
@@ -272,64 +216,15 @@ Force flush buffered errors immediately.
 { "flushed": 3 }
 ```
 
-## Example: apps/
+## Packages
 
-The `apps/` directory contains a demo TODO application that shows DevSonar in action.
+### `devsonar`
 
-### apps/backend
+The main package. Includes the relay server, AI client, CLI, error buffer, and reporter.
 
-Express.js API using CLI auto-instrumentation:
+### `@devsonar/error-reporter`
 
-```json
-{
-  "scripts": {
-    "dev": "devsonar run -- tsx watch src/index.ts"
-  }
-}
-```
-
-**`.env`:**
-```
-PORT=3001
-ERROR_REPORTER_ENABLED=true
-RELAY_URL=http://localhost:9100
-```
-
-### apps/frontend
-
-React app using `import 'devsonar'`:
-
-```typescript
-// src/services/errorReporter.ts
-import 'devsonar';
-
-// src/App.tsx
-import './services/errorReporter';
-```
-
-**`.env`:**
-```
-VITE_API_URL=http://localhost:3001/api
-VITE_RELAY_URL=http://localhost:9100
-VITE_ERROR_REPORTER_ENABLED=true
-```
-
-## Development
-
-```bash
-# Build all packages
-npm run build
-
-# Build specific package
-npm run build --workspace=packages/devsonar
-npm run build --workspace=packages/error-reporter
-
-# Clean all
-npm run clean
-
-# Run demo app
-npm run dev
-```
+Lightweight standalone client library for sending errors to the relay server. Same reporter API as `devsonar`, but with zero runtime dependencies.
 
 ## License
 

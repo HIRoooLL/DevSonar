@@ -1,20 +1,14 @@
 {
-  "name": "devsonar",
-  "version": "1.0.0",
+  "name": "devsonar-monorepo",
+  "version": "0.1.0",
   "private": true,
   "description": "AI-powered error monitoring system for local development",
   "workspaces": [
-    "apps/*",
     "packages/*"
   ],
   "scripts": {
-    "dev": "turbo run dev",
     "build": "turbo run build",
-    "lint": "turbo run lint",
-    "clean": "turbo run clean",
-    "relay": "npm run dev --workspace=apps/relay-server",
-    "backend": "npm run dev --workspace=apps/backend",
-    "frontend": "npm run dev --workspace=apps/frontend"
+    "clean": "turbo run clean"
   },
   "devDependencies": {
     "turbo": "^2.2.3"

@@ -1,12 +1,35 @@
 {
   "name": "@devsonar/error-reporter",
-  "version": "1.0.0",
+  "version": "0.1.0",
+  "description": "Lightweight error reporter client for DevSonar relay server",
+  "license": "MIT",
+  "author": "taro-hirose",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/taro-hirose/DevSonar.git",
+    "directory": "packages/error-reporter"
+  },
+  "keywords": [
+    "error-reporting",
+    "error-monitoring",
+    "express-middleware",
+    "devsonar"
+  ],
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "tsc",
-    "dev": "tsc --watch",
-    "clean": "rm -rf dist"
+    "clean": "rm -rf dist",
+    "prepublishOnly": "npm run build"
   },
   "devDependencies": {
     "@types/node": "^20.10.0",

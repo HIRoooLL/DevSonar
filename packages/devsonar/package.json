@@ -1,26 +1,45 @@
 {
   "name": "devsonar",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "type": "module",
   "description": "AI-powered error monitoring for local development",
+  "license": "MIT",
+  "author": "taro-hirose",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/taro-hirose/DevSonar.git",
+    "directory": "packages/devsonar"
+  },
+  "keywords": [
+    "error-monitoring",
+    "ai",
+    "claude",
+    "debugging",
+    "developer-tools"
+  ],
   "bin": {
     "devsonar": "./bin/devsonar.js"
   },
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
-    ".": "./dist/index.js",
-    "./register": "./dist/register.js"
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./register": {
+      "types": "./dist/register.d.ts",
+      "default": "./dist/register.js"
+    }
   },
   "files": [
     "dist",
-    "bin",
-    "dashboard"
+    "bin"
   ],
   "scripts": {
     "build": "tsc",
-    "build:dashboard": "cd ../../apps/frontend && npm run build && cp -r dist ../../packages/devsonar/dashboard",
-    "clean": "rm -rf dist dashboard"
+    "clean": "rm -rf dist",
+    "prepublishOnly": "npm run build"
   },
   "dependencies": {
     "@anthropic-ai/claude-agent-sdk": "^0.1.0",
