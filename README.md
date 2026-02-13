@@ -544,7 +544,3 @@ Python error reporter. Zero dependencies (stdlib only). Supports Django and Flas
 ### `devsonar-go` (Go)
 
 Go error reporter. Zero external dependencies. Supports `net/http` middleware and panic recovery. Install via `go get github.com/taro-hirose/devsonar-go`.
-
-## License
-
-MIT
