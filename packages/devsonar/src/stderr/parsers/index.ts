@@ -4,6 +4,7 @@ import { GoParser } from './go-parser.js';
 import { RubyParser } from './ruby-parser.js';
 import { JavaParser } from './java-parser.js';
 import { RustParser } from './rust-parser.js';
+import { DartParser } from './dart-parser.js';
 
 export function allParsers(): LanguageParser[] {
   return [
@@ -12,7 +13,8 @@ export function allParsers(): LanguageParser[] {
     new RubyParser(),
     new JavaParser(),
     new RustParser(),
+    new DartParser(),
   ];
 }
 
-export { PythonParser, GoParser, RubyParser, JavaParser, RustParser };
+export { PythonParser, GoParser, RubyParser, JavaParser, RustParser, DartParser };

@@ -103,7 +103,7 @@ npm install devsonar
 }
 ```
 
-`devsonar run` starts the relay server (port 9100) and injects error monitoring into the child process via `node --import`. It also monitors stderr for error patterns from Python, Go, Ruby, Java, and Rust. No code changes needed — all `uncaughtException` and `unhandledRejection` errors are captured automatically.
+`devsonar run` starts the relay server (port 9100) and injects error monitoring into the child process via `node --import`. It also monitors stderr for error patterns from Python, Go, Ruby, Java, Rust, and Dart/Flutter. No code changes needed — all `uncaughtException` and `unhandledRejection` errors are captured automatically.
 
 ### 3. Frontend Setup
 
@@ -246,6 +246,17 @@ npx devsonar run -- cargo run
 ```
 
 Rust panics are automatically detected from stderr.
+
+</details>
+
+<details>
+<summary>Flutter/Dart</summary>
+
+```bash
+npx devsonar run -- flutter run
+```
+
+Flutter framework exceptions, unhandled Dart exceptions, and hot reload errors are automatically detected from stderr.
 
 </details>
 
@@ -418,10 +429,11 @@ DevSonar supports error capture from multiple languages through two mechanisms:
 | Ruby | Error pattern detection | — |
 | Java | Exception/Error detection | — |
 | Rust | Panic detection | — |
+| Dart/Flutter | Exception + stack trace detection | — |
 
 ### stderr Monitoring (Automatic)
 
-`devsonar run` automatically monitors stderr output from any child process and detects error patterns for Python, Go, Ruby, Java, and Rust. No configuration needed.
+`devsonar run` automatically monitors stderr output from any child process and detects error patterns for Python, Go, Ruby, Java, Rust, and Dart/Flutter. No configuration needed.
 
 ```bash
 devsonar run -- python app.py     # Detects Python tracebacks
@@ -429,6 +441,7 @@ devsonar run -- go run main.go    # Detects Go panics
 devsonar run -- ruby app.rb       # Detects Ruby errors
 devsonar run -- java -jar app.jar # Detects Java exceptions
 devsonar run -- cargo run         # Detects Rust panics
+devsonar run -- flutter run       # Detects Dart/Flutter exceptions
 ```
 
 <details>
